@@ -1,21 +1,34 @@
-﻿
-using System.Data.SqlClient;
-using static TarefasApi.Data.TarefaContext;
+﻿// Importa os namespaces necessários para o código.
+using System.Data.SqlClient;  // Importa o namespace para usar o SqlConnection.
+using static TarefasApi.Data.TarefaContext;  // Importa o contexto das tarefas.
 
-namespace TarefasApi.Extensions;
-public static class ServiceCllectionsExtensions
+namespace TarefasApi.Extensions
 {
-    public static WebApplicationBuilder AddPersistence(this WebApplicationBuilder builder)
+    // Classe de extensão para ServiceCollection.
+    public static class ServiceCllectionsExtensions
     {
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        builder.Services.AddScoped<GetConnection>(sp =>
-        async () =>
+        // Método de extensão para adicionar persistência à aplicação web.
+        public static WebApplicationBuilder AddPersistence(this WebApplicationBuilder builder)
         {
-            var connection = new SqlConnection(connectionString);
-            await connection.OpenAsync();
-            return connection;
-        });
+            // Obtém a string de conexão do arquivo de configuração (appsettings.json).
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-        return builder;
+            // Adiciona um serviço escopo (Scoped) para obter a conexão com o banco de dados.
+            builder.Services.AddScoped<GetConnection>(sp =>
+                async () =>
+                {
+                    // Cria uma nova conexão com o banco de dados usando a string de conexão.
+                    var connection = new SqlConnection(connectionString);
+
+                    // Abre a conexão de forma assíncrona.
+                    await connection.OpenAsync();
+
+                    // Retorna a conexão aberta.
+                    return connection;
+                });
+
+            // Retorna o construtor da aplicação web com a persistência adicionada.
+            return builder;
+        }
     }
 }
